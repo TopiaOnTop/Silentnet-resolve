@@ -3,336 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POC-06: Blockchain C2 Domain Resolver & Analysis Dashboard</title>
+    <title>WE HATE SILENTNET // C2 RESOLVER</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #111827;
-            --card-border: #1f293d;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent-blue: #38bdf8;
-            --accent-purple: #c084fc;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-yellow: #eab308;
-            --code-bg: #030712;
+            --bg: #0d0d0d;
+            --surface: #141414;
+            --border: #262626;
+            --red: #ff2a2a;
+            --red-glow: rgba(255, 42, 42, 0.15);
+            --white: #ffffff;
+            --muted: #737373;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 2rem 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            background: var(--bg);
+            color: var(--white);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            line-height: 1.5;
+            padding: 2rem 1rem;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             width: 100%;
         }
 
         header {
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--card-border);
+            border-bottom: 2px solid var(--red);
             padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
         h1 {
-            font-size: 1.75rem;
-            color: var(--accent-blue);
-            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--white);
+            letter-spacing: -0.05em;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+        h1 span { color: var(--red); }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+        .tagline {
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
             padding: 1.25rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
-        .card h2 {
-            font-size: 1.1rem;
-            margin-top: 0;
-            color: var(--accent-purple);
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .kv-grid {
-            display: grid;
-            grid-template-columns: 140px 1fr;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .kv-label {
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .kv-value {
-            word-break: break-all;
-        }
-
-        .kv-value a {
-            color: var(--accent-blue);
-            text-decoration: none;
-        }
-
-        .kv-value a:hover {
-            text-decoration: underline;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
+        .card-header {
             font-size: 0.75rem;
-            font-weight: bold;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--red);
+            margin-bottom: 0.75rem;
         }
 
-        .badge-red { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-        .badge-yellow { background: rgba(234, 179, 8, 0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
-        .badge-blue { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
-
-        button {
-            background-color: var(--accent-blue);
-            color: #0b0f19;
-            font-weight: bold;
+        .btn-lookup {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             border: none;
-            padding: 0.85rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            background-color: var(--card-border);
-            cursor: not-allowed;
-            color: var(--text-muted);
-            transform: none;
-        }
-
-        .log-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.85rem;
-        }
-
-        .log-item {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--card-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .log-item:last-child {
-            border-bottom: none;
-        }
-
-        .status-ok { color: var(--accent-green); }
-        .status-err { color: var(--accent-red); }
-
-        .c2-banner {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--accent-red);
-            border-radius: 6px;
             padding: 1rem;
-            margin-top: 1rem;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 20px var(--red-glow);
+        }
+
+        .btn-lookup:hover {
+            background: #e02222;
+            box-shadow: 0 0 30px rgba(255, 42, 42, 0.4);
+        }
+
+        .btn-lookup:disabled {
+            background: #404040;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: var(--muted);
+        }
+
+        .c2-box {
+            display: none;
+            background: var(--red-glow);
+            border: 2px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .c2-box h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--white);
+            margin-bottom: 0.5rem;
         }
 
         .c2-domain {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent-red);
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--red);
             word-break: break-all;
             margin: 0.5rem 0;
+            text-shadow: 0 0 15px var(--red-glow);
         }
 
         pre {
-            background-color: var(--code-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
+            background: #080808;
+            border: 1px solid var(--border);
             padding: 1rem;
             overflow-x: auto;
             font-size: 0.8rem;
-            color: #e5e7eb;
-            margin: 0;
+            color: #d4d4d4;
+            border-left: 3px solid var(--red);
         }
 
-        code .keyword { color: #f472b6; }
-        code .type { color: #38bdf8; }
-        code .function { color: #60a5fa; }
-        code .comment { color: #6b7280; font-style: italic; }
-        code .string { color: #34d399; }
+        .rpc-logs {
+            list-style: none;
+            font-size: 0.8rem;
+            max-height: 180px;
+            overflow-y: auto;
+        }
 
-        .actions-btn-group {
+        .rpc-item {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1a1a1a;
             display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
+            justify-content: space-between;
+            color: var(--muted);
         }
 
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            font-size: 0.85rem;
-            padding: 0.5rem;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
+        .rpc-item.success { color: var(--white); }
+        .rpc-item.success .status { color: var(--red); font-weight: bold; }
+        .rpc-item.error .status { color: #525252; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>POC-06: Blockchain C2 Resolver</h1>
-        <div class="subtitle">Real-time Polygon Mainnet Malware C2 Resolver & Smart Contract Inspector</div>
+        <div>
+            <h1>WE HATE <span>SILENTNET</span></h1>
+            <div class="tagline">Polygon C2 Infrastructure Destroyer</div>
+        </div>
+        <div style="text-align: right; font-size: 0.75rem; color: var(--muted);">
+            TARGET: 0x9c0a...ff9a
+        </div>
     </header>
 
-    <div class="grid-2">
-        <!-- Target Info -->
-        <div class="card">
-            <h2>Target Metadata <span class="badge badge-red">MALICIOUS</span></h2>
-            <div class="kv-grid">
-                <span class="kv-label">Target Network:</span>
-                <span class="kv-value">Polygon Mainnet (ChainID: 137)</span>
+    <!-- LOOKUP ACTION -->
+    <button id="lookup-btn" class="btn-lookup" onclick="lookupC2()">LOOKUP DOMAIN NOW</button>
 
-                <span class="kv-label">Contract:</span>
-                <span class="kv-value"><a href="https://polygonscan.com/address/0x9c0a507300fd902787bb193d80fca5ce6e1bff9a" target="_blank" id="contract-addr"></a></span>
-
-                <span class="kv-label">Operator Wallet:</span>
-                <span class="kv-value"><a href="https://polygonscan.com/address/0x6767c6496541b530a5d1d0eb9b80bd5c7bf56767" target="_blank" id="wallet-addr"></a></span>
-
-                <span class="kv-label">Function:</span>
-                <span class="kv-value"><code>getDomain()</code></span>
-
-                <span class="kv-label">ABI Selector:</span>
-                <span class="kv-value"><code>0xce6d41de</code></span>
-            </div>
-        </div>
-
-        <!-- Threat Intelligence -->
-        <div class="card">
-            <h2>Threat Intelligence <span class="badge badge-yellow">ANALYSIS</span></h2>
-            <div class="kv-grid">
-                <span class="kv-label">Vulnerability:</span>
-                <span class="kv-value">Unencrypted C2 endpoint stored in public blockchain storage.</span>
-
-                <span class="kv-label">Impact:</span>
-                <span class="kv-value">Allows proactive detection and blacklisting before malware updates execution.</span>
-
-                <span class="kv-label">Author:</span>
-                <span class="kv-value">Security Research — 2026-07-20</span>
-            </div>
-            <div class="actions-btn-group">
-                <button class="btn-secondary" onclick="exportJSON()">Export IoCs (JSON)</button>
-            </div>
-        </div>
+    <!-- DOMAIN RESULT -->
+    <div id="c2-result" class="c2-box">
+        <h2>HERE IS THE C2 DOMAIN :</h2>
+        <div id="c2-domain-display" class="c2-domain">---</div>
     </div>
 
-    <!-- Scanner Controls -->
-    <button id="scan-btn" onclick="resolveC2()">Execute Live RPC Query</button>
-
-    <!-- Scan Results -->
-    <div id="result-card" class="card" style="display: none; margin-top: 1.5rem;">
-        <h2>Resolution Summary</h2>
-        <div id="result-content"></div>
-    </div>
-
-    <!-- RPC Query Log -->
+    <!-- RPC FALLBACK LOGS -->
     <div class="card" style="margin-top: 1.5rem;">
-        <h2>RPC Endpoint Diagnostics</h2>
-        <ul id="logs" class="log-list">
-            <li class="log-item" style="color: var(--text-muted);">Click "Execute Live RPC Query" to initialize scanning across Polygon nodes...</li>
+        <div class="card-header">RPC ENDPOINT SCANNER STATUS</div>
+        <ul id="rpc-logs" class="rpc-logs">
+            <li class="rpc-item"><span>Ready to query Polygon nodes...</span></li>
         </ul>
     </div>
 
-    <!-- Decompiled / Reconstructed Smart Contract Source Code -->
+    <!-- SOURCE CODE -->
     <div class="card">
-        <h2>Reconstructed Smart Contract Source Code <span class="badge badge-blue">Solidity</span></h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">
-            Below is the full reconstructed Solidity source code of the target contract based on bytecode decompilation and EVM storage layout analysis:
-        </p>
-        <pre><code><span class="comment">// SPDX-License-Identifier: MIT</span>
-<span class="keyword">pragma solidity</span> ^0.8.18;
+        <div class="card-header">RECONSTRUCTED CONTRACT SOURCE CODE</div>
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
 
-<span class="comment">/**
- * @title C2 Domain Resolver Storage Contract
- * @dev Decompiled / Reconstructed for Defensive Analysis
- */</span>
-<span class="keyword">contract</span> <span class="type">C2Resolver</span> {
-    <span class="type">address</span> <span class="keyword">public</span> owner;
-    <span class="type">string</span> <span class="keyword">private</span> c2Domain;
+contract C2Resolver {
+    address public owner;
+    string private c2Domain;
 
-    <span class="keyword">event</span> <span class="function">C2DomainUpdated</span>(<span class="type">string</span> indexed oldDomain, <span class="type">string</span> indexed newDomain);
-
-    <span class="keyword">modifier</span> <span class="function">onlyOwner</span>() {
-        <span class="keyword">require</span>(msg.sender == owner, <span class="string">"Caller is not owner"</span>);
-        _;
+    constructor() {
+        owner = msg.sender; // 0x6767c6496541b530a5d1d0eb9b80bd5c7bf56767
     }
 
-    <span class="keyword">constructor</span>() {
-        owner = msg.sender; <span class="comment">// Operator wallet: 0x6767c6496541b530a5d1d0eb9b80bd5c7bf56767</span>
+    function getDomain() external view returns (string memory) {
+        return c2Domain; // Selector: 0xce6d41de
     }
 
-    <span class="comment">/**
-     * @notice Returns the active C2 Domain (Selector: 0xce6d41de)
-     */</span>
-    <span class="keyword">function</span> <span class="function">getDomain</span>() <span class="keyword">external view returns</span> (<span class="type">string memory</span>) {
-        <span class="keyword">return</span> c2Domain;
-    }
-
-    <span class="comment">/**
-     * @notice Allows operator to rotate the C2 domain
-     */</span>
-    <span class="keyword">function</span> <span class="function">setDomain</span>(<span class="type">string calldata</span> _newDomain) <span class="keyword">external onlyOwner</span> {
-        <span class="keyword">emit</span> <span class="function">C2DomainUpdated</span>(c2Domain, _newDomain);
+    function setDomain(string calldata _newDomain) external {
+        require(msg.sender == owner, "Unauthorized");
         c2Domain = _newDomain;
     }
 }</code></pre>
@@ -341,32 +217,28 @@
 
 <script>
     const CONTRACT = "0x9c0a507300fd902787bb193d80fca5ce6e1bff9a";
-    const WALLET   = "0x6767c6496541b530a5d1d0eb9b80bd5c7bf56767";
     const SELECTOR = "0xce6d41de";
+
+    // Extended list of public Polygon RPC endpoints
     const RPC_ENDPOINTS = [
         "https://polygon-public.nodies.app",
         "https://polygon-bor-rpc.publicnode.com",
         "https://1rpc.io/matic",
-        "https://polygon.drpc.org"
+        "https://polygon.drpc.org",
+        "https://polygon-rpc.com",
+        "https://rpc.ankr.com/polygon",
+        "https://polygon.meowrpc.com",
+        "https://polygon-mainnet.public.blastapi.io",
+        "https://polygon.gateway.tenderly.co",
+        "https://rpc-mainnet.matic.quiknode.pro"
     ];
 
-    let lastResolvedDomain = null;
-
-    document.getElementById('contract-addr').innerText = CONTRACT;
-    document.getElementById('wallet-addr').innerText = WALLET;
-
-    // Decode ABI dynamic string response (offset + length + string data)
     function decodeABIString(hexResult) {
         if (!hexResult || hexResult === "0x") return null;
-
         const cleanHex = hexResult.startsWith("0x") ? hexResult.slice(2) : hexResult;
         if (cleanHex.length < 128) return null;
 
-        // Extraction of string length from 2nd word (bytes 32-64)
-        const lengthHex = cleanHex.substring(64, 128);
-        const length = parseInt(lengthHex, 16);
-
-        // Extraction of actual raw string data (starts at byte 64 / index 128)
+        const length = parseInt(cleanHex.substring(64, 128), 16);
         const dataHex = cleanHex.substring(128, 128 + (length * 2));
 
         let str = "";
@@ -378,7 +250,7 @@
 
     async function ethCall(rpcUrl) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
         const response = await fetch(rpcUrl, {
             method: "POST",
@@ -395,83 +267,52 @@
         return await response.json();
     }
 
-    async function resolveC2() {
-        const btn = document.getElementById('scan-btn');
-        const logsEl = document.getElementById('logs');
-        const resultCard = document.getElementById('result-card');
-        const resultContent = document.getElementById('result-content');
+    async function lookupC2() {
+        const btn = document.getElementById('lookup-btn');
+        const logsEl = document.getElementById('rpc-logs');
+        const c2Result = document.getElementById('c2-result');
+        const c2Display = document.getElementById('c2-domain-display');
 
         btn.disabled = true;
-        btn.innerText = "Querying RPC Endpoints...";
+        btn.innerText = "SCANNING POLYGON NODES...";
         logsEl.innerHTML = "";
-        resultCard.style.display = "none";
+        c2Result.style.display = "none";
 
-        lastResolvedDomain = null;
+        let resolvedDomain = null;
 
         for (const rpc of RPC_ENDPOINTS) {
             const li = document.createElement('li');
-            li.className = 'log-item';
-
+            
             try {
                 const data = await ethCall(rpc);
                 if (data.result && data.result !== "0x") {
                     const domain = decodeABIString(data.result);
                     if (domain) {
-                        lastResolvedDomain = domain;
-                        li.innerHTML = `<span>[OK] ${rpc}</span><span class="status-ok">200 OK</span>`;
+                        resolvedDomain = domain;
+                        li.className = "rpc-item success";
+                        li.innerHTML = `<span>${rpc}</span><span class="status">RESOLVED</span>`;
                         logsEl.appendChild(li);
                         break;
                     }
                 }
-                li.innerHTML = `<span>[ERR] ${rpc}</span><span class="status-err">Empty Response</span>`;
+                li.className = "rpc-item error";
+                li.innerHTML = `<span>${rpc}</span><span class="status">EMPTY</span>`;
             } catch (err) {
-                li.innerHTML = `<span>[ERR] ${rpc}</span><span class="status-err">${err.name === 'AbortError' ? 'Timeout' : 'Network/CORS Error'}</span>`;
+                li.className = "rpc-item error";
+                li.innerHTML = `<span>${rpc}</span><span class="status">${err.name === 'AbortError' ? 'TIMEOUT' : 'FAILED'}</span>`;
             }
             logsEl.appendChild(li);
         }
 
-        resultCard.style.display = "block";
-        if (lastResolvedDomain) {
-            resultContent.innerHTML = `
-                <div class="c2-banner">
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">EXTRACTED COMMAND & CONTROL DOMAIN</div>
-                    <div class="c2-domain">${lastResolvedDomain}</div>
-                </div>
-                <div style="margin-top: 1rem; font-size: 0.9rem;">
-                    <p><strong>Defensive Mitigation Steps:</strong></p>
-                    <ul>
-                        <li>Blacklist <code>${lastResolvedDomain}</code> on perimeter firewalls, DNS resolvers, and EDR agents.</li>
-                        <li>Monitor the smart contract address on Polygonscan for subsequent <code>setDomain()</code> transactions.</li>
-                        <li>Correlate outbound network logs for traffic directed towards this domain.</li>
-                    </ul>
-                </div>
-            `;
+        if (resolvedDomain) {
+            c2Display.innerText = resolvedDomain;
+            c2Result.style.display = "block";
         } else {
-            resultContent.innerHTML = `<p class="status-err">Failed to resolve active C2 domain from all tested Polygon RPC endpoints.</p>`;
+            alert("Failed to resolve domain from all RPC nodes. Check network connection or CORS.");
         }
 
         btn.disabled = false;
-        btn.innerText = "Execute Live RPC Query";
-    }
-
-    function exportJSON() {
-        const iocData = {
-            threat_type: "Blockchain C2 Infrastructure",
-            network: "Polygon Mainnet",
-            contract_address: CONTRACT,
-            operator_wallet: WALLET,
-            function_selector: SELECTOR,
-            active_c2_domain: lastResolvedDomain || "Unresolved (Run scan)",
-            timestamp: new Date().toISOString()
-        };
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(iocData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `ioc_blockchain_c2_${CONTRACT.slice(0,8)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+        btn.innerText = "LOOKUP DOMAIN AGAIN";
     }
 </script>
 
